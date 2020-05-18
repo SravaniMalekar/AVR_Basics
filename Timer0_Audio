@@ -1,0 +1,45 @@
+/*
+ * serialorgantimers.c
+ *
+ * Created: 18-05-2020 21:09:11
+ * Author : Sravani Malekar
+ */ 
+#define F_CPU 1000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include "Scale8.h"
+#define SPEAKER_DDR DDRD
+#define SPEAKER 6
+
+static inline void initTimer(void){
+	TCCR0A |= (1 << COM0A0);                //Toggle OC0A at compare match
+	TCCR0A |= (1 << WGM01);                 //CTC Mode
+	TCCR0B |= (1 << CS01)| (1 << CS00);     //setting prescaler 64
+}
+
+static inline void playNote(uint8_t wavelength,uint16_t duration){
+	OCR0A = wavelength;                    //sets pitch
+	SPEAKER_DDR |= (1 << SPEAKER);         //enable output
+	
+	while(duration){
+		_delay_ms(1);                      //delay
+		duration--;
+	}
+	SPEAKER_DDR &=	~(1 << SPEAKER);      //disable output
+	
+}
+int main(void)
+{
+    initTimer();                         //timer initialize
+    while (1) 
+    {
+		playNote(C2, 200);
+		playNote(E2, 200);
+		playNote(G2, 200);
+		playNote(C3, 400);
+		
+		_delay_ms(3000);
+    }
+	return 0;
+}
+
